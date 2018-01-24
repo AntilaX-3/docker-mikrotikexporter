@@ -1,0 +1,77 @@
+{
+  "attributes": [
+    {
+      "name": "port_3",
+      "help": "Ethernet port 3 statistics",
+      "menu": "/interface",
+      "type": "stream",
+      "command": "monitor-traffic",
+      "query": [
+        {
+          "where": [
+            "interface",
+            "Ethernet3"
+          ]
+        }
+      ],
+      "metrics": [
+        {
+          "name": "tx_bits_per_second",
+          "attribute": "txBitsPerSecond"
+        },
+        {
+          "name": "rx_bits_per_second",
+          "attribute": "rxBitsPerSecond"
+        }
+      ]
+    },
+    {
+      "name": "identity",
+      "help": "Identity of the Router",
+      "menu": "/system/identity",
+      "type": "getOne",
+      "metrics": [
+        {
+          "name": "identity",
+          "attribute": "name"
+        }
+      ]
+    },
+    {
+      "name": "system",
+      "help": "System statistics",
+      "menu": "/system/resource",
+      "type": "get",
+      "metrics": [
+        {
+          "attribute": "uptime"
+        },
+        {
+          "attribute": "time"
+        },
+        {
+          "name": "total_memory",
+          "attribute": "total-memory"
+        },
+        {
+          "name": "free_memory",
+          "attribute": "free-memory"
+        },
+        {
+          "name": "cpu_load",
+          "attribute": "cpu-load"
+        },
+        {
+          "name": "total_hdd_space",
+          "attribute": "total-hdd-space"
+        },
+        {
+          "name": "free_hdd_space",
+          "attribute": "free-hdd-space"
+        }
+      ]
+    }
+  ],
+  "port": 9120,
+  "queryInterval": 10
+}

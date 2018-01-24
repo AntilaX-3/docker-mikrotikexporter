@@ -1,0 +1,18 @@
+{
+  "name": "smartexporter",
+  "version": "0.0.1",
+  "main": "build/main.js",
+  "repository": "https://github.com/AntilaX-3/docker-smartexporter.git",
+  "author": "Rowan Taubitz <rowan@zantek.com.au>",
+  "license": "MIT",
+  "dependencies": {
+    "backpack-core": "^0.5.0",
+    "express": "^4.16.2",
+    "prom-client": "^10.2.2",
+    "routeros-client": "^0.4.1"
+  },
+  "scripts": {
+    "dev": "backpack",
+    "build": "backpack build"
+  }
+}
