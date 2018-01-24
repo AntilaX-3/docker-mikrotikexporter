@@ -59,7 +59,7 @@ router.connect().then((client) => {
   // Generate object containing all stream types of attributes
   /*const streams = */
   config.attributes.filter(attribute => attribute.type === 'stream').map((attribute) => {
-    const { command, help, labels, menu, metrics, where } = attribute;
+    const { command, labels, menu, metrics, where } = attribute;
 
     // Sanitize label names
     const labelData = { name: attribute.name };
@@ -93,18 +93,18 @@ router.connect().then((client) => {
     // Generate Prometheus reporter
     metrics.forEach((metric) => {
       // Sanitize exported strings
-      const helpo = help ? `${help} ${metric.help ? metric.help : ''}`.trim() : '';
+      const help = attribute.help ? `${attribute.help} ${metric.help ? metric.help : ''}`.trim() : '';
       const name = `mikrotikexporter_${metric.name.trim().replace(/ +/g, '_').toLowerCase()}`;
 
       // Check if it already exists
       if (!reporters.hasOwnProperty(metric.name)) {
-        reporters[metric.name] = new Prometheus.Gauge({ name, help: helpo, labelNames });
+        reporters[metric.name] = new Prometheus.Gauge({ name, help, labelNames });
       } else {
         // Check if help should be updated
         if (help.length === 0) return;
         const currentHelp = reporters[metric.name].help;
-        if (currentHelp !== helpo && currentHelp.length === 0) {
-          reporters[metric.name].help = helpo;
+        if (currentHelp !== help && currentHelp.length === 0) {
+          reporters[metric.name].help = help;
         }
       }
     });
