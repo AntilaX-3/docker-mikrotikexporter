@@ -6,21 +6,19 @@
       "menu": "/interface",
       "type": "stream",
       "command": "monitor-traffic",
-      "query": [
-        {
-          "where": [
-            "interface",
-            "Ethernet3"
-          ]
-        }
+      "where": [
+        "interface",
+        "Ethernet3"
       ],
       "metrics": [
         {
           "name": "tx_bits_per_second",
+          "help": "TX bps",
           "attribute": "txBitsPerSecond"
         },
         {
           "name": "rx_bits_per_second",
+          "help": "RX bps",
           "attribute": "rxBitsPerSecond"
         }
       ]
@@ -72,6 +70,6 @@
       ]
     }
   ],
-  "port": 9120,
+  "port": 9121,
   "queryInterval": 10
 }
