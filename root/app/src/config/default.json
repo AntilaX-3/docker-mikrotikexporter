@@ -10,6 +10,9 @@
         "interface",
         "Ethernet3"
       ],
+      "labels": [
+        ["interface", "Ethernet3"]
+      ],
       "metrics": [
         {
           "name": "tx_bits_per_second",

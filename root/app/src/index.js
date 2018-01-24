@@ -53,21 +53,34 @@ const router = new RouterOSClient(routerClientDetails);
 
 router.connect().then((client) => {
   const menuItems = {};
+  const reporters = {};
   console.log(`Connected to routeros at ${routerClientDetails.host}`);
 
   // Generate object containing all stream types of attributes
   /*const streams = */
   config.attributes.filter(attribute => attribute.type === 'stream').map((attribute) => {
-    const { command, help, menu, metrics, name, where } = attribute;
-    const onData = (reporters) => (err, data) => {
+    const { command, help, labels, menu, metrics, where } = attribute;
+
+    // Sanitize label names
+    const labelData = { name: attribute.name };
+    const labelNames = ['name'];
+    if (labels && Array.isArray(labels) && labels.length) {
+      labels.forEach((label) => {
+        if (!Array.isArray(label) || label.length !== 2) return;
+        const newLabel = label[0].replace(/ +/g, '_').toLowerCase();
+        labelNames.push(newLabel);
+        labelData[newLabel] = label[1];
+      });
+    }
+
+    const onData = (err, data) => {
       if (err) {
         exit(err);
       }
       // Data for stream received, check for wanted metrics
-      reporters.forEach((reporter) => {
-        if (data[0].hasOwnProperty(reporter.attribute)) {
-          // TODO: ADD LABELS
-          reporter.gauge.set(data[0][reporter.attribute]);
+      metrics.forEach((metric) => {
+        if (data[0].hasOwnProperty(metric.attribute)) {
+          reporters[metric.name].set(labelData, data[0][metric.attribute]);
         }
       });
     };
@@ -78,21 +91,29 @@ router.connect().then((client) => {
     }
 
     // Generate Prometheus reporter
-    const reporters = metrics.map((metric) => {
-      return {
-        ...metric,
-        gauge: new Prometheus.Gauge({
-          name: `mikrotikexporter_${name.trim().replace(/ +/g, '_').toLowerCase()}_${metric.name.trim().replace(/ +/g, '_').toLowerCase()}`,
-          help: help ? `${help} ${metric.help ? metric.help : ''}`.trim() : '',
-        }),
-      };
+    metrics.forEach((metric) => {
+      // Sanitize exported strings
+      const helpo = help ? `${help} ${metric.help ? metric.help : ''}`.trim() : '';
+      const name = `mikrotikexporter_${metric.name.trim().replace(/ +/g, '_').toLowerCase()}`;
+
+      // Check if it already exists
+      if (!reporters.hasOwnProperty(metric.name)) {
+        reporters[metric.name] = new Prometheus.Gauge({ name, help: helpo, labelNames });
+      } else {
+        // Check if help should be updated
+        if (help.length === 0) return;
+        const currentHelp = reporters[metric.name].help;
+        if (currentHelp !== helpo && currentHelp.length === 0) {
+          reporters[metric.name].help = helpo;
+        }
+      }
     });
 
     // Generate stream
     if (where && where.length >= 2) {
-      return menuItems[menu].where(where[0], where[1]).stream(command, onData(reporters));
+      return menuItems[menu].where(where[0], where[1]).stream(command, onData);
     } else {
-      return menuItems[menu].stream(command, onData(reporters));
+      return menuItems[menu].stream(command, onData);
     }
   });
 
