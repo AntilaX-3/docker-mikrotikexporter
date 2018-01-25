@@ -41,8 +41,6 @@ export default (attribute, client, menuItems, reporters) => {
 
   const onData = (data) => {
     // Data for get received, check for wanted metrics
-    console.log(data);
-
     metrics.forEach((metric) => {
       if (typeof metric.name !== 'string' || typeof metric.attribute !== 'string') return;
       if (data[0].hasOwnProperty(metric.attribute)) {
