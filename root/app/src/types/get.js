@@ -39,14 +39,28 @@ export default (attribute, client, menuItems, reporters) => {
     });
   }
 
-  const onData = (data) => {
+  const onData = (res) => {
     // Data for get received, check for wanted metrics
-    metrics.forEach((metric) => {
-      if (typeof metric.name !== 'string' || typeof metric.attribute !== 'string') return;
-      if (data[0].hasOwnProperty(metric.attribute)) {
+    console.log(res);
 
-        reporters[metric.name].set(labelData, doConversion(metric, data[0][metric.attribute]));
+    metrics.forEach((metric) => {
+      if (typeof metric.name !== 'string' || (typeof metric.attribute !== 'string' && typeof metric.type !== 'string')) return;
+      let data = 0;
+      let pos = 0;
+
+      // Check if metric is a special type
+      if (typeof metric.type === 'string') switch (metric.type) {
+        case 'count':
+          // Return size of array
+          data = res.length;
+          break;
+        default:
+          return console.log(`Unknown metric type ${metric.type}`);
+      } else if (res.length > pos && res[pos].hasOwnProperty(metric.attribute)) {
+        data = doConversion(metric, res[pos][metric.attribute]);
       }
+
+      reporters[metric.name].set(labelData, data);
     });
   };
 
@@ -70,11 +84,12 @@ export default (attribute, client, menuItems, reporters) => {
     // Check if it already exists
     if (!reporters.hasOwnProperty(metric.name)) {
       reporters[metric.name] = new Prometheus.Gauge({ name, help, labelNames });
-    }/* else {
-      // Check if help should be updated
-      if (help.length === 0) return;
-      // TODO Merge help?
-    }*/
+    }
+    /* else {
+          // Check if help should be updated
+          if (help.length === 0) return;
+          // TODO Merge help?
+        }*/
   });
 
   return () => {

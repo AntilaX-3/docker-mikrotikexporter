@@ -1,8 +1,8 @@
 {
-  "name": "smartexporter",
+  "name": "mikrotikexporter",
   "version": "0.0.1",
   "main": "build/main.js",
-  "repository": "https://github.com/AntilaX-3/docker-smartexporter.git",
+  "repository": "https://github.com/AntilaX-3/docker-mikrotikexporter.git",
   "author": "Rowan Taubitz <rowan@zantek.com.au>",
   "license": "MIT",
   "dependencies": {
