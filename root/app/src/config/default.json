@@ -27,14 +27,28 @@
       ]
     },
     {
-      "name": "identity",
-      "help": "Identity of the Router",
-      "menu": "/system/identity",
-      "type": "getOne",
+      "name": "modem",
+      "help": "Modem Statistics",
+      "menu": "/interface",
+      "type": "stream",
+      "command": "monitor-traffic",
+      "where": [
+        "interface",
+        "Ethernet24-Modem"
+      ],
+      "labels": [
+        ["interface", "Modem"]
+      ],
       "metrics": [
         {
-          "name": "identity",
-          "attribute": "name"
+          "name": "tx_bits_per_second",
+          "help": "TX bps",
+          "attribute": "txBitsPerSecond"
+        },
+        {
+          "name": "rx_bits_per_second",
+          "help": "RX bps",
+          "attribute": "rxBitsPerSecond"
         }
       ]
     },
@@ -45,30 +59,33 @@
       "type": "get",
       "metrics": [
         {
-          "attribute": "uptime"
+          "name": "uptime",
+          "attribute": "uptime",
+          "conversion": "uptime"
         },
         {
+          "name": "time",
           "attribute": "time"
         },
         {
           "name": "total_memory",
-          "attribute": "total-memory"
+          "attribute": "totalMemory"
         },
         {
           "name": "free_memory",
-          "attribute": "free-memory"
+          "attribute": "freeMemory"
         },
         {
           "name": "cpu_load",
-          "attribute": "cpu-load"
+          "attribute": "cpuLoad"
         },
         {
           "name": "total_hdd_space",
-          "attribute": "total-hdd-space"
+          "attribute": "totalHddSpace"
         },
         {
           "name": "free_hdd_space",
-          "attribute": "free-hdd-space"
+          "attribute": "freeHddSpace"
         }
       ]
     }
