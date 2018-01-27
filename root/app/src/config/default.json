@@ -94,10 +94,13 @@
       "help": "DHCP Lease Statistics",
       "menu": "/ip/dhcp-server/lease",
       "type": "get",
+      "options": [
+        "count-only"
+      ],
       "metrics": [
         {
-          "type": "count",
-          "name": "leases"
+          "name": "leases",
+          "attribute": "ret"
         }
       ]
     }

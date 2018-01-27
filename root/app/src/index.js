@@ -70,7 +70,10 @@ router.connect().then((client) => {
   ));
 
   const getMetrics = () => {
-    scrapedMetrics.forEach((metric) => metric());
+    scrapedMetrics.forEach((metric) => {
+      metric();
+
+    });
   };
 
   // Start a timer to fetch metrics

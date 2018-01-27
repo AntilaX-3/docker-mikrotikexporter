@@ -22,9 +22,8 @@ const doConversion = ({ conversion }, data) => {
 export default (attribute, client, menuItems, reporters) => {
   const { labels, menu, metrics, type } = attribute;
 
-  const exit = (err) => {
+  const onError = (err) => {
     console.log(err);
-    process.exit(1);
   };
 
   // Sanitize label names
@@ -39,10 +38,9 @@ export default (attribute, client, menuItems, reporters) => {
     });
   }
 
-  const onData = (res) => {
+  const onData = (type) => (res) => {
     // Data for get received, check for wanted metrics
     console.log(res);
-
     metrics.forEach((metric) => {
       if (typeof metric.name !== 'string' || (typeof metric.attribute !== 'string' && typeof metric.type !== 'string')) return;
       let data = 0;
@@ -56,10 +54,20 @@ export default (attribute, client, menuItems, reporters) => {
           break;
         default:
           return console.log(`Unknown metric type ${metric.type}`);
-      } else if (res.length > pos && res[pos].hasOwnProperty(metric.attribute)) {
-        data = doConversion(metric, res[pos][metric.attribute]);
+      } else {
+        switch (type) {
+          case 'get':
+            if (Array.isArray(res) && res.length > pos && res[pos].hasOwnProperty(metric.attribute)) {
+              data = doConversion(metric, res[pos][metric.attribute]);
+            }
+            break;
+          case 'getOne':
+            if (res.hasOwnProperty(metric.attribute)) {
+              data = doConversion(metric, res[metric.attribute]);
+            }
+            break;
+        }
       }
-
       reporters[metric.name].set(labelData, data);
     });
   };
@@ -73,10 +81,10 @@ export default (attribute, client, menuItems, reporters) => {
   metrics.forEach((metric) => {
     // Sanitize exported strings
     if (typeof metric.name !== 'string') {
-      console.log(`Metric missing required 'name' field, skipping ${metric}`);
+      return console.log(`Metric missing required 'name' field, skipping ${metric}`);
     }
-    if (typeof metric.attribute !== 'string') {
-      console.log(`Metric missing required 'attribute' field, skipping ${metric}`);
+    if (typeof metric.attribute !== 'string' && typeof metric.type !== 'string') {
+      return console.log(`Metric missing required 'attribute' field, skipping ${metric}`);
     }
     const help = attribute.help ? `${attribute.help} ${metric.help ? metric.help : ''}`.trim() : '';
     const name = `mikrotikexporter_${metric.name.trim().replace(/ +/g, '_').toLowerCase()}`;
@@ -92,13 +100,21 @@ export default (attribute, client, menuItems, reporters) => {
         }*/
   });
 
+  // Sanitize options
+  const options = [];
+  if (Array.isArray(attribute.options)) {
+    attribute.options.forEach((option) => {
+      options.push(option);
+    })
+  }
+
   return () => {
     switch (type) {
       case 'get':
-        menuItems[menu].get().then(onData).catch(exit);
+        menuItems[menu].options(options).get().then(onData(type)).catch(onError);
         break;
       case 'getOne':
-        menuItems[menu].getOne().then(onData).catch(exit);
+        menuItems[menu].options(options).getOne().then(onData(type)).catch(onError);
         break;
     }
   };
