@@ -3,11 +3,6 @@ import Prometheus from 'prom-client';
 export default (attribute, client, menuItems, reporters) => {
   const { command, labels, menu, metrics, where } = attribute;
 
-  const exit = (err) => {
-    console.log(err);
-    process.exit(1);
-  };
-
   // Sanitize label names
   const labelData = { name: attribute.name };
   const labelNames = ['name'];
@@ -22,7 +17,7 @@ export default (attribute, client, menuItems, reporters) => {
 
   const onData = (err, data) => {
     if (err) {
-      exit(err);
+      return console.log('Error', err);
     }
     // Data for stream received, check for wanted metrics
     metrics.forEach((metric) => {

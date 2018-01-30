@@ -88,6 +88,21 @@
           "attribute": "freeHddSpace"
         }
       ]
+    },
+    {
+      "name": "dhcp_leases",
+      "help": "DHCP Lease Statistics",
+      "menu": "/ip/dhcp-server/lease",
+      "type": "get",
+      "options": [
+        "count-only"
+      ],
+      "metrics": [
+        {
+          "name": "leases",
+          "attribute": "ret"
+        }
+      ]
     }
   ],
   "port": 9121,

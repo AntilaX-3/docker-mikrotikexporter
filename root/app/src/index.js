@@ -48,45 +48,51 @@ requiredKeys.forEach((requiredKey) => {
 });
 
 const router = new RouterOSClient(routerClientDetails);
-router.connect().then((client) => {
-  const menuItems = {};
-  const reporters = {};
-  console.log(`Connected to routeros at ${routerClientDetails.host}`);
+const connect = () => {
+  router.connect().then((client) => {
+    const menuItems = {};
+    const reporters = {};
+    console.log(`Connected to routeros at ${routerClientDetails.host}`);
 
-  // Generate all stream types of attributes
-  config.attributes.filter(attribute => attribute.type === 'stream').map((attribute) => stream(
-    attribute,
-    client,
-    menuItems,
-    reporters,
-  ));
+    // Generate all stream types of attributes
+    config.attributes.filter(attribute => attribute.type === 'stream').map((attribute) => stream(
+      attribute,
+      client,
+      menuItems,
+      reporters,
+    ));
 
-  // Generate array of functions containing all 'get' types of attributes
-  const scrapedMetrics = config.attributes.filter(attribute => attribute.type.startsWith('get')).map((attribute) => get(
-    attribute,
-    client,
-    menuItems,
-    reporters,
-  ));
+    // Generate array of functions containing all 'get' types of attributes
+    const scrapedMetrics = config.attributes.filter(attribute => attribute.type.startsWith('get')).map((attribute) => get(
+      attribute,
+      client,
+      menuItems,
+      reporters,
+    ));
 
-  const getMetrics = () => {
-    scrapedMetrics.forEach((metric) => metric());
-  };
+    const getMetrics = () => {
+      scrapedMetrics.forEach((metric) => {
+        metric();
 
-  // Start a timer to fetch metrics
-  setInterval(getMetrics, scrapeInterval);
+      });
+    };
 
-  // Get initial metrics
-  getMetrics();
-})
-  .catch((err) => {
-    console.log('Unable to connect to router');
-    console.log(err);
-    process.exit(1);
-  });
+    // Start a timer to fetch metrics
+    setInterval(getMetrics, scrapeInterval);
+
+    // Get initial metrics
+    getMetrics();
+  })
+    .catch((err) => {
+      console.log('Unable to connect to router, re-trying in 5 seconds');
+      console.log(err);
+      setTimeout(connect, 5000);
+    });
+};
 
 router.on('error', (err) => {
   console.log(err);
+  setTimeout(connect, 5000);
 });
 
 // Setup our HTTP webserver
@@ -113,6 +119,7 @@ app.use((err, req, res, next) => {
 
 const server = app.listen((port), () => {
   console.log(`Running mikrotikexporter. Listening on port ${port}.`);
+  connect();
 });
 
 // Shutdown gracefully
