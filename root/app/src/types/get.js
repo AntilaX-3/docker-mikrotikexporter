@@ -40,7 +40,10 @@ export default (attribute, client, menuItems, reporters) => {
 
   const onData = (type) => (res) => {
     // Data for get received, check for wanted metrics
-    console.log(res);
+    if (process.env.ME_DEBUG) {
+      console.log(res);
+    }
+
     metrics.forEach((metric) => {
       if (typeof metric.name !== 'string' || (typeof metric.attribute !== 'string' && typeof metric.type !== 'string')) return;
       let data = 0;
