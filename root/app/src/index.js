@@ -73,7 +73,6 @@ const connect = () => {
     const getMetrics = () => {
       scrapedMetrics.forEach((metric) => {
         metric();
-
       });
     };
 

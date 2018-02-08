@@ -12,7 +12,9 @@ export default (filename, requiredFields) => {
     if (fileContents) {
       try {
         const config = JSON.parse(fileContents);
-
+        if (config === undefined) {
+          exit('Unable to parse configuration file, please check JSON validity.');
+        }
         requiredFields.forEach((field) => {
           if (!config.hasOwnProperty(field))
             exit(`Missing required field '${field}' from ${filename}`);
@@ -24,11 +26,7 @@ export default (filename, requiredFields) => {
     }
   } else {
     console.log('Unable to find configuration file');
-    fs.writeFile(filename, `${JSON.stringify(defConfig, null, 2)}\n`, 'utf8', (err) => {
-      if (err) {
-        exit(`Error writing to ${filename}: ${err}`);
-      }
-      exit(`Copied default config to ${filename}`);
-    });
+    fs.writeFileSync(filename, `${JSON.stringify(defConfig, null, 2)}\n`, 'utf8');
+    exit(`Copied default config to ${filename}`);
   }
 }
